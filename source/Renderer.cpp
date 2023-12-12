@@ -23,10 +23,31 @@ namespace dae {
 		{
 			std::cout << "DirectX initialization failed!\n";
 		}
+
+		if (!m_IsInitialized) return;
+
+		m_Camera.Initialize(
+			45.f,
+			{ 0.f, 0.f, -10.f },
+			static_cast<float>(m_Width) / static_cast<float>(m_Height)
+		);
+
+		const std::vector<Vertex_PosCol> vertices{
+			{ { 0.f, 3.f, 2.f }, { 1.f, 0.f, 0.f } },
+			{ { 3.f, -3.f, 2.f }, { 0.f, 0.f, 1.f } },
+			{ { -3.f, -3.f, 2.f }, { 0.f, 1.f, 0.f } },
+		};
+		const std::vector<uint32_t> indices{ 0, 1, 2 };
+
+		m_pMesh = new Mesh{ m_pDevice, L"Resources/PosCol3D.fx", vertices, indices };
+
 	}
 
 	Renderer::~Renderer()
 	{
+		delete m_pMesh;
+
+		// Release all DX resources and views
 		m_pRenderTargetView->Release();
 		m_pRenderTargetBuffer->Release();
 		m_pDepthStencilView->Release();
@@ -45,12 +66,12 @@ namespace dae {
 
 	void Renderer::Update(const Timer* pTimer)
 	{
-
+		m_Camera.Update(pTimer);
 	}
 
 
 	void Renderer::Render() const
-	{
+	{	
 		if (!m_IsInitialized) return;
 
 		constexpr float color[4]{ 0.f, 0.f, 0.3f, 1.f };
@@ -60,16 +81,8 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		// render
-		const std::vector<Vertex_PosCol> vertices{
-			{ { 0.f, 0.5f, 0.5f }, { 1.f, 0.f, 0.f } },
-			{ { 0.5f, -0.5f, 0.5f }, { 0.f, 0.f, 1.f } },
-			{ { -0.5f, -0.5f, 0.5f }, { 0.f, 1.f, 0.f } },
-		};
-		const std::vector<uint32_t> indices{ 0, 1, 2 };
-
-		const Mesh mesh{ m_pDevice, L"Resources/PosCol3D.fx", vertices, indices };
-
-		mesh.Render(m_pDeviceContext);
+		Matrix wvp{ m_pMesh->GetWorldMatrix() * m_Camera.viewMatrix * m_Camera.projectionMatrix };
+		m_pMesh->Render(m_pDeviceContext, wvp);
 
 		// present backbuffer
 		m_pSwapChain->Present(0, 0);
@@ -85,8 +98,6 @@ namespace dae {
 		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-		ID3D11Device* device;
-		ID3D11DeviceContext* deviceContext;
 		HRESULT result{ D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlags, &featureLevel, 1, D3D11_SDK_VERSION,
 		                                        &m_pDevice, nullptr, &m_pDeviceContext) };
 
@@ -189,9 +200,6 @@ namespace dae {
 		viewport.MinDepth = 0.f;
 		viewport.MaxDepth = 1.f;
 		m_pDeviceContext->RSSetViewports(1, &viewport);
-
-
-
 
 
 		return S_OK;

@@ -27,13 +27,13 @@ Mesh::Mesh(
 	D3DX11_PASS_DESC passDesc{};
 	m_pEffect->GetTechnique()->GetPassByIndex(0)->GetDesc(&passDesc);
 
-	HRESULT result = pDevice->CreateInputLayout(
+	HRESULT result{ pDevice->CreateInputLayout(
 		vertexDesc,
 		numElements,
 		passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize,
 		&m_pInputLayout
-	);
+	) };
 
 	if (FAILED(result)) return;
 
@@ -77,7 +77,7 @@ Mesh::~Mesh()
 	delete m_pEffect;
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewProjection) const
 {
 	// Set primitive topology
 	pDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -85,10 +85,11 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 	// Set input layout
 	pDeviceContext->IASetInputLayout(m_pInputLayout);
 
-	// Set vertex buffer
+	// Update vertex buffer on GPU
 	constexpr uint32_t stride{ sizeof(Vertex_PosCol) };
 	constexpr uint32_t offset{ 0 };
 	pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pEffect->SetMatrix(worldViewProjection);
 
 	// Set index buffer
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);

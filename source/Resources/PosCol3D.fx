@@ -11,11 +11,14 @@ struct VS_OUTPUT
     float3 Color : COLOR;
 };
 
+// Globals
+float4x4 gWorldViewProjection : WorldViewProjection;
+
 // Vertex Shader
 VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
-    output.Position = float4(input.Position, 1.f);
+    output.Position = mul(float4(input.Position, 1.f), gWorldViewProjection);
     output.Color = input.Color;
     return output;
 }

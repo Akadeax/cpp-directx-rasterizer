@@ -42,6 +42,9 @@
     </ClInclude>
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Camera.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

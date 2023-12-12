@@ -9,13 +9,26 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	m_pTechnique = m_pEffect->GetTechniqueByIndex(0);
 	if (!m_pTechnique->IsValid())
 	{
-		std::wcout << "Technique not valid";
+		std::wcout << L"Technique not valid";
 	}
+
+	m_pEffectWorldViewProjectionVar = m_pEffect->GetVariableByName("gWorldViewProjection")->AsMatrix();
+	if (!m_pEffectWorldViewProjectionVar->IsValid())
+	{
+		std::wcout << L"effect world view projection matrix not valid";
+	}
+
+	//m_pEffectWorldViewProjectionVar->SetMatrix()
 }
 
 Effect::~Effect()
 {
 	m_pEffect->Release();
+}
+
+void Effect::SetMatrix(dae::Matrix& matrix)
+{
+	m_pEffectWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&matrix));
 }
 
 ID3DX11Effect* Effect::LoadEffect(const std::wstring& assetFile)

@@ -19,10 +19,14 @@ public:
 	Mesh& operator=(const Mesh&) = delete;
 	Mesh& operator=(Mesh&&) noexcept = delete;
 
-	void Render(ID3D11DeviceContext* pDeviceContext) const;
+	void Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewProjection) const;
+
+	auto GetWorldMatrix() const { return m_WorldMatrix; }
 
 private:
 	Effect* m_pEffect;
+
+	dae::Matrix m_WorldMatrix{};
 
 	ID3D11InputLayout* m_pInputLayout{};
 	ID3D11Buffer* m_pVertexBuffer{};
