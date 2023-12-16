@@ -11,7 +11,7 @@ Mesh::Mesh(
 	: m_pEffect{ new Effect(pDevice, effectFile, pDiffuse) }
 {
 	// Create vertex layout
-	constexpr uint32_t numElements{ 3 };
+	constexpr uint32_t numElements{ 2 };
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 	vertexDesc[0].SemanticName = "POSITION";
@@ -19,15 +19,10 @@ Mesh::Mesh(
 	vertexDesc[0].AlignedByteOffset = 0;
 	vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
-	vertexDesc[1].SemanticName = "COLOR";
-	vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexDesc[1].AlignedByteOffset = 12;
+	vertexDesc[1].SemanticName = "TEXCOORD";
+	vertexDesc[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	vertexDesc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-	vertexDesc[2].SemanticName = "TEXCOORD";
-	vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
-	vertexDesc[2].AlignedByteOffset = 20;
-	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 	// Create input layout
 	D3DX11_PASS_DESC passDesc{};
@@ -96,17 +91,22 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewPro
 	constexpr uint32_t offset{ 0 };
 	pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
 	m_pEffect->SetMatrix(worldViewProjection);
-
+	
 	// Set index buffer
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	// Draw
-	D3DX11_TECHNIQUE_DESC techDesc{};
-	m_pEffect->GetTechnique()->GetDesc(&techDesc);
+	D3DX11_TECHNIQUE_DESC techniqueDesc{};
+	m_pEffect->GetTechnique()->GetDesc(&techniqueDesc);
 	
-	for (uint32_t p{ 0 }; p < techDesc.Passes; ++p)
+	for (uint32_t p{ 0 }; p < techniqueDesc.Passes; ++p)
 	{
 		m_pEffect->GetTechnique()->GetPassByIndex(p)->Apply(0, pDeviceContext);
 		pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 	}
+}
+
+void Mesh::CycleSamplerState() const
+{
+	m_pEffect->CycleSamplerMode();
 }

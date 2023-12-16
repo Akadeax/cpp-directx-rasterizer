@@ -34,10 +34,10 @@ namespace dae {
 		);
 
 		const std::vector<Vertex_PosCol> vertices{
-			{ { -4.f, 4.f, 2.f }, {}, { 0.f, 0.f } },
-			{ { 4.f, 4.f, 2.f }, {}, { 1.f, 0.f } },
-			{ { -4.f, -4.f, 2.f }, {}, { 0.f, 1.f } },
-			{ { 4.f, -4.f, 2.f }, {}, { 1.f, 1.f } },
+			{ { -4.f, 4.f, 2.f }, { 0.f, 0.f } },
+			{ { 4.f, 4.f, 2.f }, { 1.f, 0.f } },
+			{ { -4.f, -4.f, 2.f }, { 0.f, 1.f } },
+			{ { 4.f, -4.f, 2.f }, { 1.f, 1.f } },
 		};
 		const std::vector<uint32_t> indices{
 			0, 3, 2,
@@ -48,7 +48,7 @@ namespace dae {
 			m_pDevice,
 			L"Resources/PosCol3D.fx",
 			vertices, indices,
-			new Texture(m_pDevice, "Resources/uv_grid_2.png")
+			new Texture(m_pDevice, "Resources/uv_grid_3.png")
 		};
 
 	}
@@ -96,6 +96,11 @@ namespace dae {
 
 		// present backbuffer
 		m_pSwapChain->Present(0, 0);
+	}
+
+	void Renderer::CycleFilterMode() const
+	{
+		m_pMesh->CycleSamplerState();
 	}
 
 	HRESULT Renderer::InitializeDirectX()

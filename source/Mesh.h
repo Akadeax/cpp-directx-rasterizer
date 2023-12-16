@@ -24,6 +24,8 @@ public:
 
 	auto GetWorldMatrix() const { return m_WorldMatrix; }
 
+	void CycleSamplerState() const;
+
 private:
 	Effect* m_pEffect;
 
@@ -34,5 +36,8 @@ private:
 	ID3D11Buffer* m_pIndexBuffer{};
 
 	uint32_t m_NumIndices{};
+
+
+
 };
 

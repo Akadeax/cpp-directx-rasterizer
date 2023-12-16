@@ -21,6 +21,8 @@ namespace dae
 		void Update(const Timer* pTimer);
 		void Render() const;
 
+		void CycleFilterMode() const;
+
 	private:
 		SDL_Window* m_pWindow{};
 

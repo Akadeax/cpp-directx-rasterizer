@@ -39,6 +39,25 @@ void Effect::SetMatrix(dae::Matrix& matrix) const
 	m_pEffectWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&matrix));
 }
 
+void Effect::CycleSamplerMode()
+{
+	switch(m_CurrentSampler)
+	{
+	case SamplerMode::POINT:
+		m_CurrentSampler = SamplerMode::LINEAR;
+		m_pTechnique = m_pEffect->GetTechniqueByName("LinearTechnique");
+		break;
+	case SamplerMode::LINEAR:
+		m_CurrentSampler = SamplerMode::ANISOTROPIC;
+		m_pTechnique = m_pEffect->GetTechniqueByName("AnisotropicTechnique");
+		break;
+	case SamplerMode::ANISOTROPIC:
+		m_CurrentSampler = SamplerMode::POINT;
+		m_pTechnique = m_pEffect->GetTechniqueByName("PointTechnique");
+		break;
+	}
+}
+
 ID3DX11Effect* Effect::LoadEffect(const std::wstring& assetFile) const
 {
 	HRESULT result;

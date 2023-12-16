@@ -19,6 +19,8 @@ public:
 
 	void SetMatrix(dae::Matrix& matrix) const;
 
+	void CycleSamplerMode();
+
 private:
 	ID3DX11Effect* LoadEffect(const std::wstring& assetFile) const;
 
@@ -29,4 +31,12 @@ private:
 
 	ID3DX11EffectMatrixVariable* m_pEffectWorldViewProjectionVar{};
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVar{};
+
+	enum class SamplerMode
+	{
+		POINT,
+		LINEAR,
+		ANISOTROPIC
+	};
+	SamplerMode m_CurrentSampler{ SamplerMode::POINT };
 };
