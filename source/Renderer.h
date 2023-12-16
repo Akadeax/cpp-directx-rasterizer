@@ -34,6 +34,7 @@ namespace dae
 		Camera m_Camera;
 
 		Mesh* m_pMesh{};
+		float m_CurrentMeshRotation{ 0.f };
 
 		// DX
 		ID3D11Device* m_pDevice{};

@@ -22,6 +22,7 @@ public:
 
 	void Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewProjection) const;
 
+	void SetWorldMatrix(const dae::Matrix& matrix) { m_WorldMatrix = matrix; }
 	auto GetWorldMatrix() const { return m_WorldMatrix; }
 
 	void CycleSamplerState() const;

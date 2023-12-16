@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Renderer.h"
 
+#include "FileParsers.h"
 #include "Mesh.h"
 #include "Texture.h"
 #include "Vertex.h"
@@ -29,26 +30,30 @@ namespace dae {
 
 		m_Camera.Initialize(
 			45.f,
-			{ 0.f, 0.f, -10.f },
+			{ 0.f, 0.f, -50.f },
 			static_cast<float>(m_Width) / static_cast<float>(m_Height)
 		);
 
-		const std::vector<Vertex_PosCol> vertices{
-			{ { -4.f, 4.f, 2.f }, { 0.f, 0.f } },
-			{ { 4.f, 4.f, 2.f }, { 1.f, 0.f } },
-			{ { -4.f, -4.f, 2.f }, { 0.f, 1.f } },
-			{ { 4.f, -4.f, 2.f }, { 1.f, 1.f } },
-		};
-		const std::vector<uint32_t> indices{
-			0, 3, 2,
-			0, 1, 3,
-		};
+		//const std::vector<Vertex_PosCol> vertices{
+		//	{ { -4.f, 4.f, 2.f }, { 0.f, 0.f } },
+		//	{ { 4.f, 4.f, 2.f }, { 1.f, 0.f } },
+		//	{ { -4.f, -4.f, 2.f }, { 0.f, 1.f } },
+		//	{ { 4.f, -4.f, 2.f }, { 1.f, 1.f } },
+		//};
+		//const std::vector<uint32_t> indices{
+		//	0, 3, 2,
+		//	0, 1, 3,
+		//};
+
+		std::vector<Vertex_PosCol> vertices;
+		std::vector<uint32_t> indices;
+		fileParsers::ParseOBJ("Resources/vehicle.obj", vertices, indices);
 
 		m_pMesh = new Mesh{
 			m_pDevice,
 			L"Resources/PosCol3D.fx",
 			vertices, indices,
-			new Texture(m_pDevice, "Resources/uv_grid_3.png")
+			new Texture(m_pDevice, "Resources/vehicle_diffuse.png")
 		};
 
 	}
@@ -77,6 +82,9 @@ namespace dae {
 	void Renderer::Update(const Timer* pTimer)
 	{
 		m_Camera.Update(pTimer);
+
+		m_CurrentMeshRotation += pTimer->GetElapsed() * 90.f * (PI / 180.f);
+		m_pMesh->SetWorldMatrix(Matrix::CreateRotationY(m_CurrentMeshRotation));
 	}
 
 
