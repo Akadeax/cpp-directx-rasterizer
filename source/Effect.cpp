@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "Effect.h"
 
-Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
+#include "Texture.h"
+
+Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile, const Texture* pDiffuse)
 	: m_pDevice{ pDevice }
 {
 	m_pEffect = LoadEffect(assetFile);
@@ -12,13 +14,19 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 		std::wcout << L"Technique not valid";
 	}
 
-	m_pEffectWorldViewProjectionVar = m_pEffect->GetVariableByName("gWorldViewProjection")->AsMatrix();
+	m_pEffectWorldViewProjectionVar = m_pEffect->GetVariableBySemantic("WorldViewProjection")->AsMatrix();
 	if (!m_pEffectWorldViewProjectionVar->IsValid())
 	{
 		std::wcout << L"effect world view projection matrix not valid";
 	}
 
-	//m_pEffectWorldViewProjectionVar->SetMatrix()
+	m_pDiffuseMapVar = m_pEffect->GetVariableBySemantic("DiffuseMap")->AsShaderResource();
+	if (!m_pDiffuseMapVar->IsValid())
+	{
+		std::wcout << L"effect diffuse map not valid";
+	}
+
+	m_pDiffuseMapVar->SetResource(pDiffuse->GetShaderResourceView());
 }
 
 Effect::~Effect()
@@ -26,12 +34,12 @@ Effect::~Effect()
 	m_pEffect->Release();
 }
 
-void Effect::SetMatrix(dae::Matrix& matrix)
+void Effect::SetMatrix(dae::Matrix& matrix) const
 {
 	m_pEffectWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&matrix));
 }
 
-ID3DX11Effect* Effect::LoadEffect(const std::wstring& assetFile)
+ID3DX11Effect* Effect::LoadEffect(const std::wstring& assetFile) const
 {
 	HRESULT result;
 	ID3D10Blob* pErrorBlob{};
@@ -71,6 +79,8 @@ ID3DX11Effect* Effect::LoadEffect(const std::wstring& assetFile)
 			pErrorBlob = nullptr;
 
 			std::wcout << ss.str() << std::endl;
+
+			throw EffectLoadFailedException{};
 		}
 		else
 		{

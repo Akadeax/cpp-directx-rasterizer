@@ -9,7 +9,8 @@ public:
 		ID3D11Device* pDevice,
 		const std::wstring& effectFile,
 		const std::vector<Vertex_PosCol>& vertices,
-		const std::vector<uint32_t>& indices
+		const std::vector<uint32_t>& indices,
+		const Texture* pDiffuse
 	);
 
 	~Mesh();

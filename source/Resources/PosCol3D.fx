@@ -3,16 +3,26 @@ struct VS_INPUT
 {
     float3 Position : POSITION;
     float3 Color : COLOR;
+    float2 UV : TEXCOORD;
 };
 
 struct VS_OUTPUT
 {
     float4 Position : SV_POSITION;
     float3 Color : COLOR;
+    float2 UV : TEXCOORD;
+};
+
+SamplerState samPoint
+{
+    Filter = MIN_MAG_MIP_POINT;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 // Globals
 float4x4 gWorldViewProjection : WorldViewProjection;
+Texture2D gDiffuseMap : DiffuseMap;
 
 // Vertex Shader
 VS_OUTPUT VS(VS_INPUT input)
@@ -26,7 +36,9 @@ VS_OUTPUT VS(VS_INPUT input)
 // Pixel shader
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
-    return float4(input.Color, 1.f);
+    //return float4(input.Color, 1.f);
+    float4 sample = gDiffuseMap.Sample(samPoint, input.UV);
+    return float4(sample.r, sample.g, sample.b, 1.f);
 }
 
 // Technique

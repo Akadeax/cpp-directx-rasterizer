@@ -2,6 +2,7 @@
 #include "Renderer.h"
 
 #include "Mesh.h"
+#include "Texture.h"
 #include "Vertex.h"
 
 namespace dae {
@@ -33,13 +34,22 @@ namespace dae {
 		);
 
 		const std::vector<Vertex_PosCol> vertices{
-			{ { 0.f, 3.f, 2.f }, { 1.f, 0.f, 0.f } },
-			{ { 3.f, -3.f, 2.f }, { 0.f, 0.f, 1.f } },
-			{ { -3.f, -3.f, 2.f }, { 0.f, 1.f, 0.f } },
+			{ { -4.f, 4.f, 2.f }, {}, { 0.f, 0.f } },
+			{ { 4.f, 4.f, 2.f }, {}, { 1.f, 0.f } },
+			{ { -4.f, -4.f, 2.f }, {}, { 0.f, 1.f } },
+			{ { 4.f, -4.f, 2.f }, {}, { 1.f, 1.f } },
 		};
-		const std::vector<uint32_t> indices{ 0, 1, 2 };
+		const std::vector<uint32_t> indices{
+			0, 3, 2,
+			0, 1, 3,
+		};
 
-		m_pMesh = new Mesh{ m_pDevice, L"Resources/PosCol3D.fx", vertices, indices };
+		m_pMesh = new Mesh{
+			m_pDevice,
+			L"Resources/PosCol3D.fx",
+			vertices, indices,
+			new Texture(m_pDevice, "Resources/uv_grid_2.png")
+		};
 
 	}
 
