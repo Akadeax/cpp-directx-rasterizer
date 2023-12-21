@@ -53,7 +53,9 @@ namespace dae {
 			m_pDevice,
 			L"Resources/PosCol3D.fx",
 			vertices, indices,
-			new Texture(m_pDevice, "Resources/vehicle_diffuse.png")
+			new Texture(m_pDevice, "Resources/vehicle_diffuse.png"),
+			new Texture(m_pDevice, "Resources/vehicle_normal.png"),
+			new Texture(m_pDevice, "Resources/vehicle_gloss.png"),
 		};
 
 	}
@@ -99,8 +101,8 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		// render
-		Matrix wvp{ m_pMesh->GetWorldMatrix() * m_Camera.viewMatrix * m_Camera.projectionMatrix };
-		m_pMesh->Render(m_pDeviceContext, wvp);
+		const Matrix wvp{ m_pMesh->GetWorldMatrix() * m_Camera.viewMatrix * m_Camera.projectionMatrix };
+		m_pMesh->Render(m_pDeviceContext, wvp, m_Camera.origin);
 
 		// present backbuffer
 		m_pSwapChain->Present(0, 0);

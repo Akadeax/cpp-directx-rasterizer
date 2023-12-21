@@ -3,7 +3,7 @@
 
 #include "Texture.h"
 
-Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile, const Texture* pDiffuse)
+Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile, const Texture* pDiffuse, const Texture* pNormal, const Texture* pGlossiness)
 	: m_pDevice{ pDevice }
 {
 	m_pEffect = LoadEffect(assetFile);
@@ -17,16 +17,42 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile, const Textu
 	m_pEffectWorldViewProjectionVar = m_pEffect->GetVariableBySemantic("WorldViewProjection")->AsMatrix();
 	if (!m_pEffectWorldViewProjectionVar->IsValid())
 	{
-		std::wcout << L"effect world view projection matrix not valid";
+		std::wcout << L"var not valid";
+	}
+
+	m_pEffectWorldVar = m_pEffect->GetVariableBySemantic("World")->AsMatrix();
+	if (!m_pEffectWorldVar->IsValid())
+	{
+		std::wcout << L"var not valid";
+	}
+
+	m_pCameraPosVar = m_pEffect->GetVariableBySemantic("CameraPos")->AsVector();
+	if (!m_pCameraPosVar->IsValid())
+	{
+		std::wcout << L"var not valid";
 	}
 
 	m_pDiffuseMapVar = m_pEffect->GetVariableBySemantic("DiffuseMap")->AsShaderResource();
 	if (!m_pDiffuseMapVar->IsValid())
 	{
-		std::wcout << L"effect diffuse map not valid";
+		std::wcout << L"var not valid";
 	}
-
 	m_pDiffuseMapVar->SetResource(pDiffuse->GetShaderResourceView());
+
+	m_pNormalMapVar = m_pEffect->GetVariableBySemantic("NormalMap")->AsShaderResource();
+	if (!m_pNormalMapVar->IsValid())
+	{
+		std::wcout << L"var not valid";
+	}
+	m_pNormalMapVar->SetResource(pNormal->GetShaderResourceView());
+
+	m_pGlossinessMapVar = m_pEffect->GetVariableBySemantic("GlossinessMap")->AsShaderResource();
+	if (!m_pGlossinessMapVar->IsValid())
+	{
+		std::wcout << L"var not valid";
+	}
+	m_pGlossinessMapVar->SetResource(pGlossiness->GetShaderResourceView());
+
 }
 
 Effect::~Effect()
@@ -34,28 +60,21 @@ Effect::~Effect()
 	m_pEffect->Release();
 }
 
-void Effect::SetMatrix(dae::Matrix& matrix) const
+void Effect::SetGPUData(const dae::Matrix& wvp, const dae::Matrix& world, const dae::Vector3& cameraPos) const
 {
-	m_pEffectWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&matrix));
+	m_pEffectWorldViewProjectionVar->SetMatrix(reinterpret_cast<const float*>(&wvp));
+	m_pEffectWorldVar->SetMatrix(reinterpret_cast<const float*>(&world));
+	m_pCameraPosVar->SetFloatVector(reinterpret_cast<const float*>(&cameraPos));
 }
 
 void Effect::CycleSamplerMode()
 {
-	switch(m_CurrentSampler)
+	if (++m_CurrentTechniqueIndex == m_TechniqueCount)
 	{
-	case SamplerMode::POINT:
-		m_CurrentSampler = SamplerMode::LINEAR;
-		m_pTechnique = m_pEffect->GetTechniqueByName("LinearTechnique");
-		break;
-	case SamplerMode::LINEAR:
-		m_CurrentSampler = SamplerMode::ANISOTROPIC;
-		m_pTechnique = m_pEffect->GetTechniqueByName("AnisotropicTechnique");
-		break;
-	case SamplerMode::ANISOTROPIC:
-		m_CurrentSampler = SamplerMode::POINT;
-		m_pTechnique = m_pEffect->GetTechniqueByName("PointTechnique");
-		break;
+		m_CurrentTechniqueIndex = 0;
 	}
+	m_pTechnique = m_pEffect->GetTechniqueByIndex(m_CurrentTechniqueIndex);
+
 }
 
 ID3DX11Effect* Effect::LoadEffect(const std::wstring& assetFile) const

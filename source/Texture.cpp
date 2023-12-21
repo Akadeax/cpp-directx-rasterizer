@@ -6,7 +6,7 @@ Texture::Texture(ID3D11Device* pDevice, const std::string& filePath)
 	SDL_Surface* pSurface{ IMG_Load(filePath.c_str()) };
 	if (pSurface == nullptr)
 	{
-		throw TextureLoadFailedException();
+		throw TextureLoadFailedException{};
 	}
 
 	const DXGI_FORMAT format{ DXGI_FORMAT_R8G8B8A8_UNORM };

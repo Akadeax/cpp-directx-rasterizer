@@ -41,12 +41,14 @@
       <Filter>Misc</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h" />
-    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Camera.h">
       <Filter>Misc</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h" />
     <ClInclude Include="FileParsers.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
       <Filter>Misc</Filter>
     </ClInclude>
   </ItemGroup>
@@ -73,7 +75,9 @@
       <Filter>Misc</Filter>
     </ClCompile>
     <ClCompile Include="Vertex.cpp" />
-    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

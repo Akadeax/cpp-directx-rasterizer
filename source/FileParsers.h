@@ -92,8 +92,7 @@ namespace fileParsers
 
 							// Optional vertex normal
 							file >> iNormal;
-							// TODO REMOVE FOR: NORMAL
-							//vertex.normal = normals[iNormal - 1];
+							vertex.normal = normals[iNormal - 1];
 						}
 					}
 
@@ -137,24 +136,22 @@ namespace fileParsers
 			const dae::Vector2 diffY = dae::Vector2(uv1.y - uv0.y, uv2.y - uv0.y);
 			float r = 1.f / dae::Vector2::Cross(diffX, diffY);
 
-			// TODO REMOVE FOR: TANGENT
-			/*dae::Vector3 tangent = (edge0 * diffY.y - edge1 * diffY.x) * r;
+			dae::Vector3 tangent = (edge0 * diffY.y - edge1 * diffY.x) * r;
 			vertices[index0].tangent += tangent;
 			vertices[index1].tangent += tangent;
-			vertices[index2].tangent += tangent;*/
+			vertices[index2].tangent += tangent;
 		}
 
-		// TODO REMOVE FOR: TANGENT
 		//Fix the tangents per vertex now because we accumulated
 		for (auto& v : vertices)
 		{
-			//v.tangent = dae::Vector3::Reject(v.tangent, v.normal).Normalized();
+			v.tangent = dae::Vector3::Reject(v.tangent, v.normal).Normalized();
 
 			if (flipAxisAndWinding)
 			{
 				v.position.z *= -1.f;
-				//v.normal.z *= -1.f;
-				//v.tangent.z *= -1.f;
+				v.normal.z *= -1.f;
+				v.tangent.z *= -1.f;
 			}
 
 		}

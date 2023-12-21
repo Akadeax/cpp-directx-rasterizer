@@ -1,12 +1,13 @@
 #pragma once
 class Texture;
 
-class EffectLoadFailedException {};
 
 class Effect final
 {
 public:
-	explicit Effect(ID3D11Device* pDevice, const std::wstring& assetFile, const Texture* pDiffuse);
+	class EffectLoadFailedException {};
+
+	explicit Effect(ID3D11Device* pDevice, const std::wstring& assetFile, const Texture* pDiffuse, const Texture* pNormal, const Texture* pGlossiness);
 	~Effect();
 
 	Effect(const Effect&) = delete;
@@ -17,7 +18,7 @@ public:
 	auto GetEffect() const { return m_pEffect; }
 	auto GetTechnique() const { return m_pTechnique; }
 
-	void SetMatrix(dae::Matrix& matrix) const;
+	void SetGPUData(const dae::Matrix& wvp, const dae::Matrix& world, const dae::Vector3& cameraPos) const;
 
 	void CycleSamplerMode();
 
@@ -30,13 +31,13 @@ private:
 	ID3DX11EffectTechnique* m_pTechnique{};
 
 	ID3DX11EffectMatrixVariable* m_pEffectWorldViewProjectionVar{};
-	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVar{};
+	ID3DX11EffectMatrixVariable* m_pEffectWorldVar{};
+	ID3DX11EffectVectorVariable* m_pCameraPosVar{};
 
-	enum class SamplerMode
-	{
-		POINT,
-		LINEAR,
-		ANISOTROPIC
-	};
-	SamplerMode m_CurrentSampler{ SamplerMode::POINT };
+	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVar{};
+	ID3DX11EffectShaderResourceVariable* m_pNormalMapVar{};
+	ID3DX11EffectShaderResourceVariable* m_pGlossinessMapVar{};
+
+	const int m_TechniqueCount{ 4 };
+	int m_CurrentTechniqueIndex{ 0 };
 };

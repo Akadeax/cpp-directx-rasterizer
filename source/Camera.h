@@ -29,7 +29,7 @@ namespace dae
 		Matrix projectionMatrix{};
 
 		float cameraRotationSpeed{ 0.04f };
-		float cameraTranslationSpeed{ 5.f };
+		float cameraTranslationSpeed{ 25.f };
 
 		float nearPlane{ 1.f };
 		float farPlane{ 1000.f };
@@ -105,12 +105,12 @@ namespace dae
 			// LMB + MouseY
 			if (leftMouse && !rightMouse && mouseY != 0)
 			{
-				origin -= forward * static_cast<float>(mouseY) * cameraTranslationSpeed * deltaTime;
+				origin -= forward * static_cast<float>(mouseY) * cameraTranslationSpeed * 100 * deltaTime;
 			}
 			// LMB + RMB + MouseY
 			if (leftMouse && rightMouse && mouseY != 0)
 			{
-				origin += Vector3::UnitY * static_cast<float>(mouseY) * cameraTranslationSpeed * deltaTime;
+				origin += Vector3::UnitY * static_cast<float>(mouseY) * cameraTranslationSpeed * 100 * deltaTime;
 			}
 
 			// Rotation
