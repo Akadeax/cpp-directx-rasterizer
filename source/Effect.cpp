@@ -3,7 +3,14 @@
 
 #include "Texture.h"
 
-Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile, const Texture* pDiffuse, const Texture* pNormal, const Texture* pGlossiness)
+Effect::Effect(
+	ID3D11Device* pDevice,
+	const std::wstring& assetFile,
+	const Texture* pDiffuse,
+	const Texture* pSpecular,
+	const Texture* pNormal,
+	const Texture* pGlossiness
+)
 	: m_pDevice{ pDevice }
 {
 	m_pEffect = LoadEffect(assetFile);
@@ -39,6 +46,13 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile, const Textu
 	}
 	m_pDiffuseMapVar->SetResource(pDiffuse->GetShaderResourceView());
 
+	m_pSpecularMapVar = m_pEffect->GetVariableBySemantic("SpecularMap")->AsShaderResource();
+	if (!m_pSpecularMapVar->IsValid())
+	{
+		std::wcout << L"var not valid";
+	}
+	m_pSpecularMapVar->SetResource(pSpecular->GetShaderResourceView());
+
 	m_pNormalMapVar = m_pEffect->GetVariableBySemantic("NormalMap")->AsShaderResource();
 	if (!m_pNormalMapVar->IsValid())
 	{
@@ -52,7 +66,6 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile, const Textu
 		std::wcout << L"var not valid";
 	}
 	m_pGlossinessMapVar->SetResource(pGlossiness->GetShaderResourceView());
-
 }
 
 Effect::~Effect()

@@ -34,17 +34,6 @@ namespace dae {
 			static_cast<float>(m_Width) / static_cast<float>(m_Height)
 		);
 
-		//const std::vector<Vertex_PosCol> vertices{
-		//	{ { -4.f, 4.f, 2.f }, { 0.f, 0.f } },
-		//	{ { 4.f, 4.f, 2.f }, { 1.f, 0.f } },
-		//	{ { -4.f, -4.f, 2.f }, { 0.f, 1.f } },
-		//	{ { 4.f, -4.f, 2.f }, { 1.f, 1.f } },
-		//};
-		//const std::vector<uint32_t> indices{
-		//	0, 3, 2,
-		//	0, 1, 3,
-		//};
-
 		std::vector<Vertex_PosCol> vertices;
 		std::vector<uint32_t> indices;
 		fileParsers::ParseOBJ("Resources/vehicle.obj", vertices, indices);
@@ -54,10 +43,10 @@ namespace dae {
 			L"Resources/PosCol3D.fx",
 			vertices, indices,
 			new Texture(m_pDevice, "Resources/vehicle_diffuse.png"),
+			new Texture(m_pDevice, "Resources/vehicle_specular.png"),
 			new Texture(m_pDevice, "Resources/vehicle_normal.png"),
 			new Texture(m_pDevice, "Resources/vehicle_gloss.png"),
 		};
-
 	}
 
 	Renderer::~Renderer()
@@ -85,7 +74,7 @@ namespace dae {
 	{
 		m_Camera.Update(pTimer);
 
-		m_CurrentMeshRotation += pTimer->GetElapsed() * 90.f * (PI / 180.f);
+		m_CurrentMeshRotation += pTimer->GetElapsed() * 45.f * (PI / 180.f);
 		m_pMesh->SetWorldMatrix(Matrix::CreateRotationY(m_CurrentMeshRotation));
 	}
 

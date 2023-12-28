@@ -7,10 +7,11 @@ Mesh::Mesh(
 	const std::vector<Vertex_PosCol>& vertices,
 	const std::vector<uint32_t>& indices,
 	const Texture* pDiffuse,
+	const Texture* pSpecular,
 	const Texture* pNormal,
 	const Texture* pGlossiness
 )
-	: m_pEffect{ new Effect(pDevice, effectFile, pDiffuse, pNormal, pGlossiness) }
+	: m_pEffect{ new Effect(pDevice, effectFile, pDiffuse, pSpecular, pNormal, pGlossiness) }
 {
 	// Create vertex layout
 	constexpr uint32_t numElements{ 4 };

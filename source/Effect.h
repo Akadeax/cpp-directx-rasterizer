@@ -7,7 +7,14 @@ class Effect final
 public:
 	class EffectLoadFailedException {};
 
-	explicit Effect(ID3D11Device* pDevice, const std::wstring& assetFile, const Texture* pDiffuse, const Texture* pNormal, const Texture* pGlossiness);
+	explicit Effect(
+		ID3D11Device* pDevice,
+		const std::wstring& assetFile,
+		const Texture* pDiffuse,
+		const Texture* pSpecular,
+		const Texture* pNormal,
+		const Texture* pGlossiness
+	);
 	~Effect();
 
 	Effect(const Effect&) = delete;
@@ -35,6 +42,7 @@ private:
 	ID3DX11EffectVectorVariable* m_pCameraPosVar{};
 
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVar{};
+	ID3DX11EffectShaderResourceVariable* m_pSpecularMapVar{};
 	ID3DX11EffectShaderResourceVariable* m_pNormalMapVar{};
 	ID3DX11EffectShaderResourceVariable* m_pGlossinessMapVar{};
 

@@ -12,6 +12,7 @@ public:
 		const std::vector<Vertex_PosCol>& vertices,
 		const std::vector<uint32_t>& indices,
 		const Texture* pDiffuse,
+		const Texture* pSpecular,
 		const Texture* pNormal,
 		const Texture* pGlossiness
 	);
