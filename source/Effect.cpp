@@ -6,12 +6,10 @@
 Effect::Effect(
 	ID3D11Device* pDevice,
 	const std::wstring& assetFile,
-	const Texture* pDiffuse,
-	const Texture* pSpecular,
-	const Texture* pNormal,
-	const Texture* pGlossiness
+	Texture* pDiffuse
 )
 	: m_pDevice{ pDevice }
+	, m_pDiffuse{ pDiffuse }
 {
 	m_pEffect = LoadEffect(assetFile);
 
@@ -33,12 +31,6 @@ Effect::Effect(
 		std::wcout << L"var not valid";
 	}
 
-	m_pCameraPosVar = m_pEffect->GetVariableBySemantic("CameraPos")->AsVector();
-	if (!m_pCameraPosVar->IsValid())
-	{
-		std::wcout << L"var not valid";
-	}
-
 	m_pDiffuseMapVar = m_pEffect->GetVariableBySemantic("DiffuseMap")->AsShaderResource();
 	if (!m_pDiffuseMapVar->IsValid())
 	{
@@ -46,38 +38,18 @@ Effect::Effect(
 	}
 	m_pDiffuseMapVar->SetResource(pDiffuse->GetShaderResourceView());
 
-	m_pSpecularMapVar = m_pEffect->GetVariableBySemantic("SpecularMap")->AsShaderResource();
-	if (!m_pSpecularMapVar->IsValid())
-	{
-		std::wcout << L"var not valid";
-	}
-	m_pSpecularMapVar->SetResource(pSpecular->GetShaderResourceView());
-
-	m_pNormalMapVar = m_pEffect->GetVariableBySemantic("NormalMap")->AsShaderResource();
-	if (!m_pNormalMapVar->IsValid())
-	{
-		std::wcout << L"var not valid";
-	}
-	m_pNormalMapVar->SetResource(pNormal->GetShaderResourceView());
-
-	m_pGlossinessMapVar = m_pEffect->GetVariableBySemantic("GlossinessMap")->AsShaderResource();
-	if (!m_pGlossinessMapVar->IsValid())
-	{
-		std::wcout << L"var not valid";
-	}
-	m_pGlossinessMapVar->SetResource(pGlossiness->GetShaderResourceView());
 }
 
 Effect::~Effect()
 {
 	m_pEffect->Release();
+	delete m_pDiffuse;
 }
 
-void Effect::SetGPUData(const dae::Matrix& wvp, const dae::Matrix& world, const dae::Vector3& cameraPos) const
+void Effect::SetMatrices(const dae::Matrix& wvp, const dae::Matrix& world)
 {
 	m_pEffectWorldViewProjectionVar->SetMatrix(reinterpret_cast<const float*>(&wvp));
 	m_pEffectWorldVar->SetMatrix(reinterpret_cast<const float*>(&world));
-	m_pCameraPosVar->SetFloatVector(reinterpret_cast<const float*>(&cameraPos));
 }
 
 void Effect::CycleSamplerMode()
@@ -133,13 +105,11 @@ ID3DX11Effect* Effect::LoadEffect(const std::wstring& assetFile) const
 
 			throw EffectLoadFailedException{};
 		}
-		else
-		{
-			std::wstringstream ss;
-			ss << "EffectLoader: Failed to CreateEffectFromFile!\nPath: " << assetFile;
-			std::wcout << ss.str() << std::endl;
-			return nullptr;
-		}
+
+		std::wstringstream ss;
+		ss << "EffectLoader: Failed to CreateEffectFromFile!\nPath: " << assetFile;
+		std::wcout << ss.str() << std::endl;
+		return nullptr;
 	}
 
 	return pEffect;

@@ -8,13 +8,9 @@ public:
 	explicit Mesh() = default;
 	explicit Mesh(
 		ID3D11Device* pDevice,
-		const std::wstring& effectFile,
 		const std::vector<Vertex_PosCol>& vertices,
 		const std::vector<uint32_t>& indices,
-		const Texture* pDiffuse,
-		const Texture* pSpecular,
-		const Texture* pNormal,
-		const Texture* pGlossiness
+		Effect* pEffect
 	);
 
 	~Mesh();
@@ -24,13 +20,12 @@ public:
 	Mesh& operator=(const Mesh&) = delete;
 	Mesh& operator=(Mesh&&) noexcept = delete;
 
-	void Render(ID3D11DeviceContext* pDeviceContext, const dae::Matrix& worldViewProjection, const dae::Vector3& cameraPos) const;
+	void Render(ID3D11DeviceContext* pDeviceContext) const;
 
 	void SetWorldMatrix(const dae::Matrix& matrix) { m_WorldMatrix = matrix; }
 	auto GetWorldMatrix() const { return m_WorldMatrix; }
 
 	void CycleSamplerState() const;
-
 private:
 	Effect* m_pEffect;
 

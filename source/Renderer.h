@@ -1,6 +1,8 @@
 #pragma once
 #include "Camera.h"
 
+class Effect_DiffusePartialCoverage;
+class Effect_PosTex;
 class Mesh;
 struct SDL_Window;
 struct SDL_Surface;
@@ -21,7 +23,12 @@ namespace dae
 		void Update(const Timer* pTimer);
 		void Render() const;
 
-		void CycleFilterMode() const;
+		std::string CycleFilterMode() const;
+		void CycleDoRotation();
+		void CycleNormalMapping();
+		void CycleRenderFireFX();
+
+		Camera& GetCamera() { return m_Camera; }
 
 	private:
 		SDL_Window* m_pWindow{};
@@ -33,7 +40,16 @@ namespace dae
 
 		Camera m_Camera;
 
+		Effect_PosTex* m_pMeshEffect{};
 		Mesh* m_pMesh{};
+
+		Effect_DiffusePartialCoverage* m_pFXEffect{};
+		Mesh* m_pFXMesh{};
+
+
+		bool m_DoRotation{ true };
+		bool m_RenderFireFX{ true };
+
 		float m_CurrentMeshRotation{ 0.f };
 
 		// DX

@@ -35,6 +35,14 @@ SamplerState anisotropicSampler
     AddressV = Wrap;
 };
 
+DepthStencilState gDepthStencilState
+{
+	DepthEnable = true;
+	DepthWriteMask = 1;
+	DepthFunc = less;
+	StencilEnable = false;
+};
+
 // Globals
 float4x4 gWorldViewProjection : WorldViewProjection;
 float4x4 gWorld : World;
@@ -44,6 +52,8 @@ Texture2D gDiffuse : DiffuseMap;
 Texture2D gSpecular : SpecularMap;
 Texture2D gNormal : NormalMap;
 Texture2D gGlossiness : GlossinessMap;
+
+bool doNormalMapping : DoNormalMap;
 
 // Constants
 float3 gLightDir : LightDir = float3(0.577f, -0.577f, 0.577f);
@@ -99,6 +109,11 @@ float3 Shade(VS_OUTPUT input, SamplerState state)
     float3 transformedNormal = 2.f * normalMapSample - float3(1.0f, 1.0f, 1.0f);
     float3 normal = normalize(mul(transformedNormal, tangentSpaceAxis));
 
+    if (!doNormalMapping)
+    {
+        normal = input.Normal;
+    }
+
     float cosineLaw = clamp(dot(normal, -gLightDir), 0.f, 1.f);
     float3 viewDirection = -normalize(gCameraPos - input.WorldPosition.xyz);
 
@@ -134,6 +149,7 @@ technique11 PointTechnique
 {
     pass P0
     {
+        SetDepthStencilState(gDepthStencilState, 0);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Point()));
@@ -143,6 +159,7 @@ technique11 LinearTechnique
 {
     pass P0
     {
+        SetDepthStencilState(gDepthStencilState, 0);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Linear()));
@@ -153,6 +170,7 @@ technique11 AnisotropicTechnique
 {
     pass P0
     {
+        SetDepthStencilState(gDepthStencilState, 0);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Anisotropic()));
@@ -163,6 +181,7 @@ technique11 NormalDisplayTechnique
 {
     pass P0
     {
+        SetDepthStencilState(gDepthStencilState, 0);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_NormalDisplay()));

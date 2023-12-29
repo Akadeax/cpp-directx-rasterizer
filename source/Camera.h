@@ -30,9 +30,12 @@ namespace dae
 
 		float cameraRotationSpeed{ 0.04f };
 		float cameraTranslationSpeed{ 25.f };
+		float cameraTranslationSpeedBoosted{ 50.f };
 
 		float nearPlane{ 1.f };
 		float farPlane{ 1000.f };
+
+		bool boost{ false };
 
 		void Initialize(float _verticalFovAngle = 90.f, Vector3 _origin = {0.f,0.f,0.f}, float _aspectRatio = 1.66f)
 		{
@@ -83,34 +86,36 @@ namespace dae
 			const bool leftMouse{ (mouseState & SDL_BUTTON(1)) != 0 };
 			const bool rightMouse{ (mouseState & SDL_BUTTON(3)) != 0 };
 
+			const float tSpeed{ boost ? cameraTranslationSpeedBoosted : cameraTranslationSpeed };
+
 			// == Translation ==
 			// WASD
 			if (pKeyboardState[SDL_SCANCODE_W])
 			{
-				origin += forward * cameraTranslationSpeed * deltaTime;
+				origin += forward * tSpeed * deltaTime;
 			}
 			else if (pKeyboardState[SDL_SCANCODE_S])
 			{
-				origin -= forward * cameraTranslationSpeed * deltaTime;
+				origin -= forward * tSpeed * deltaTime;
 			}
 			if (pKeyboardState[SDL_SCANCODE_D])
 			{
-				origin += right * cameraTranslationSpeed * deltaTime;
+				origin += right * tSpeed * deltaTime;
 			}
 			else if (pKeyboardState[SDL_SCANCODE_A])
 			{
-				origin -= right * cameraTranslationSpeed * deltaTime;
+				origin -= right * tSpeed * deltaTime;
 			}
 
 			// LMB + MouseY
 			if (leftMouse && !rightMouse && mouseY != 0)
 			{
-				origin -= forward * static_cast<float>(mouseY) * cameraTranslationSpeed * 100 * deltaTime;
+				origin -= forward * static_cast<float>(mouseY) * tSpeed * 100 * deltaTime;
 			}
 			// LMB + RMB + MouseY
 			if (leftMouse && rightMouse && mouseY != 0)
 			{
-				origin += Vector3::UnitY * static_cast<float>(mouseY) * cameraTranslationSpeed * 100 * deltaTime;
+				origin += Vector3::UnitY * static_cast<float>(mouseY) * tSpeed * 100 * deltaTime;
 			}
 
 			// Rotation

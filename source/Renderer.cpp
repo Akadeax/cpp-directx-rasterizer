@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Renderer.h"
 
+#include "Effect_DiffusePartialCoverage.h"
+#include "Effect_PosTex.h"
 #include "FileParsers.h"
 #include "Mesh.h"
 #include "Texture.h"
@@ -38,20 +40,31 @@ namespace dae {
 		std::vector<uint32_t> indices;
 		fileParsers::ParseOBJ("Resources/vehicle.obj", vertices, indices);
 
-		m_pMesh = new Mesh{
+		m_pMeshEffect = new Effect_PosTex{
 			m_pDevice,
-			L"Resources/PosCol3D.fx",
-			vertices, indices,
 			new Texture(m_pDevice, "Resources/vehicle_diffuse.png"),
 			new Texture(m_pDevice, "Resources/vehicle_specular.png"),
 			new Texture(m_pDevice, "Resources/vehicle_normal.png"),
-			new Texture(m_pDevice, "Resources/vehicle_gloss.png"),
+			new Texture(m_pDevice, "Resources/vehicle_gloss.png")
 		};
+
+		m_pMesh = new Mesh{ m_pDevice, vertices, indices, m_pMeshEffect };
+
+		fileParsers::ParseOBJ("Resources/fireFX.obj", vertices, indices);
+
+		m_pFXEffect = new Effect_DiffusePartialCoverage{
+			m_pDevice,
+			new Texture(m_pDevice, "Resources/fireFX_diffuse.png")
+		};
+
+		m_pFXMesh = new Mesh{ m_pDevice, vertices, indices, m_pFXEffect };
+
 	}
 
 	Renderer::~Renderer()
 	{
 		delete m_pMesh;
+		delete m_pFXMesh;
 
 		// Release all DX resources and views
 		m_pRenderTargetView->Release();
@@ -74,8 +87,14 @@ namespace dae {
 	{
 		m_Camera.Update(pTimer);
 
-		m_CurrentMeshRotation += pTimer->GetElapsed() * 45.f * (PI / 180.f);
-		m_pMesh->SetWorldMatrix(Matrix::CreateRotationY(m_CurrentMeshRotation));
+		if (m_DoRotation)
+		{
+			m_CurrentMeshRotation += pTimer->GetElapsed() * 45.f * (PI / 180.f);
+		}
+
+		const Matrix rotationMat{ Matrix::CreateRotationY(m_CurrentMeshRotation) };
+		m_pMesh->SetWorldMatrix(rotationMat);
+		m_pFXMesh->SetWorldMatrix(rotationMat);
 	}
 
 
@@ -89,17 +108,49 @@ namespace dae {
 		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
-		// render
-		const Matrix wvp{ m_pMesh->GetWorldMatrix() * m_Camera.viewMatrix * m_Camera.projectionMatrix };
-		m_pMesh->Render(m_pDeviceContext, wvp, m_Camera.origin);
+		// Mesh
+		Matrix wvp{ m_pMesh->GetWorldMatrix() * m_Camera.viewMatrix * m_Camera.projectionMatrix };
+		m_pMesh->Render(m_pDeviceContext);
+		m_pMeshEffect->SetMatrices(wvp, m_pMesh->GetWorldMatrix());
+		m_pMeshEffect->SetCameraPos(m_Camera.origin);
+
+		if (m_RenderFireFX)
+		{
+			// FX
+			wvp = m_pFXMesh->GetWorldMatrix() * m_Camera.viewMatrix * m_Camera.projectionMatrix;
+			m_pFXMesh->Render(m_pDeviceContext);
+			m_pFXEffect->SetMatrices(wvp, m_pFXMesh->GetWorldMatrix());
+		}
 
 		// present backbuffer
 		m_pSwapChain->Present(0, 0);
 	}
 
-	void Renderer::CycleFilterMode() const
+	std::string Renderer::CycleFilterMode() const
 	{
 		m_pMesh->CycleSamplerState();
+		m_pFXMesh->CycleSamplerState();
+
+		static size_t count{ 0 };
+		const std::string vals[] { "Point", "Linear", "Anisotropic", "Show Normals" };
+		count = (count + 1) % 4;
+		return vals[count];
+
+	}
+
+	void Renderer::CycleDoRotation()
+	{
+		m_DoRotation = !m_DoRotation;
+	}
+
+	void Renderer::CycleNormalMapping()
+	{
+		m_pMeshEffect->CycleNormalMapping();
+	}
+
+	void Renderer::CycleRenderFireFX()
+	{
+		m_RenderFireFX = !m_RenderFireFX;
 	}
 
 	HRESULT Renderer::InitializeDirectX()

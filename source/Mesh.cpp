@@ -3,15 +3,11 @@
 
 Mesh::Mesh(
 	ID3D11Device* pDevice,
-	const std::wstring& effectFile,
 	const std::vector<Vertex_PosCol>& vertices,
 	const std::vector<uint32_t>& indices,
-	const Texture* pDiffuse,
-	const Texture* pSpecular,
-	const Texture* pNormal,
-	const Texture* pGlossiness
+	Effect* pEffect
 )
-	: m_pEffect{ new Effect(pDevice, effectFile, pDiffuse, pSpecular, pNormal, pGlossiness) }
+	: m_pEffect{ pEffect }
 {
 	// Create vertex layout
 	constexpr uint32_t numElements{ 4 };
@@ -91,7 +87,7 @@ Mesh::~Mesh()
 	delete m_pEffect;
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const dae::Matrix& worldViewProjection, const dae::Vector3& cameraPos) const
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 {
 	// Set primitive topology
 	pDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -103,8 +99,6 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const dae::Matrix& worldV
 	constexpr uint32_t stride{ sizeof(Vertex_PosCol) };
 	constexpr uint32_t offset{ 0 };
 	pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
-
-	m_pEffect->SetGPUData(worldViewProjection, m_WorldMatrix, cameraPos);
 
 	// Set index buffer
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);

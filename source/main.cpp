@@ -39,7 +39,7 @@ int main(int argc, char* args[])
 	//Initialize "framework"
 	const auto pTimer = new Timer();
 	const auto pRenderer = new Renderer(pWindow);
-
+	std::cout << "Cycling filter mode also has a mode showing vertex normals" << '\n';
 	//Start loop
 	pTimer->Start();
 	float printTimer = 0.f;
@@ -56,9 +56,30 @@ int main(int argc, char* args[])
 				isLooping = false;
 				break;
 			case SDL_KEYUP:
-				if (e.key.keysym.scancode == SDL_SCANCODE_F2)
+				if (e.key.keysym.scancode == SDL_SCANCODE_F4)
 				{
-					pRenderer->CycleFilterMode();
+					const std::string& val{ pRenderer->CycleFilterMode() };
+					std::cout << "Cycled filter mode to " << val << '\n';
+				}
+				else if (e.key.keysym.scancode == SDL_SCANCODE_F5)
+				{
+					pRenderer->CycleDoRotation();
+					std::cout << "Cycled rotation" << '\n';
+				}
+				else if (e.key.keysym.scancode == SDL_SCANCODE_F6)
+				{
+					pRenderer->CycleNormalMapping();
+					std::cout << "Cycled normal mapping" << '\n';
+				}
+				else if (e.key.keysym.scancode == SDL_SCANCODE_F7)
+				{
+					pRenderer->CycleRenderFireFX();
+					std::cout << "Cycled fire FX" << '\n';
+				}
+				else if (e.key.keysym.scancode == SDL_SCANCODE_LSHIFT && e.key.repeat == 0)
+				{
+					pRenderer->GetCamera().boost = !pRenderer->GetCamera().boost;
+					std::cout << "Cycled boost" << '\n';
 				}
 				break;
 			default: ;
